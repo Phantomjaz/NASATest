@@ -8,21 +8,17 @@ from owslib.wms import WebMapService
 from PIL import Image
 
 
-wms_url = "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?"
-wms = WebMapService(wms_url, version="1.1.1")
+wms = WebMapService('https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?', version='1.1.1')
 
-target_layer = "TEMPO_L2_Ozone_UV_Aerosol_Index_Granule"
-current_date = datetime.now().strftime("%Y-%m-%d")    
+# Configure request for MODIS_Terra_CorrectedReflectance_TrueColor
+img = wms.getmap(layers=['AIRS_L3_Carbon_Dioxide_AIRS_AMSU_Monthly'],  # Layers
+                 srs='epsg:4326',  # Map projection
+                 bbox=(-180,-90,180,90),  # Bounds
+                 size=(2000, 2000),  # Image size
+                 format='image/jpeg',  # Image format
+                 transparent=True)  # Nodata transparency
 
-raw_img_response = wms.getmap(
-    layers=[target_layer],
-    srs="epsg:4326",                 
-    bbox=(-180, -90, 180, 90),       
-    size=(1200, 600),                
-    time=current_date,               
-    format="image/jpeg"              
-)
-
-image_in_memory = Image.open(BytesIO(raw_img_response.read()))
+# Save output PNG to a file
+image_in_memory = Image.open(BytesIO(img.read()))
 
 image_in_memory.show()
